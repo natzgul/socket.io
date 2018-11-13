@@ -1,0 +1,61 @@
+<h3>Mon pseudo</h3>
+<input name="pseudo" placeholder="Entrez votre pseudo" type="text" id="pseudoInput" required>
+<button name="pseudo" id="submitPseudo">OK</button>
+
+<h3>Chat</h3>
+<div id="messagesDiv">
+
+</div>
+
+<input type="text" id="messageInput">
+<button id="submitBtn">VALIDER</button>
+
+<h3>Liste des utilisateurs</h3>
+<ul id="userList" style="list-style-type:none">
+    
+</ul>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    var socket = io();
+    var messageDiv = document.getElementById('messagesDiv');
+    var submitBtn = document.getElementById('submitBtn');
+    var messageInput = document.getElementById('messageInput');
+    var pseudoInput = document.getElementById('pseudoInput');
+    var submitPseudo = document.getElementById('submitPseudo');
+    var userList = document.getElementById('userList');
+
+    submitPseudo.addEventListener('click', () => {
+        socket.emit('send-pseudo', pseudoInput.value);
+    })
+
+    submitBtn.addEventListener('click', () => {
+        messageDiv.innerHTML += '<p style="color:#949494; font-size:14px;margin-bottom: -10px;">' + pseudoInput
+            .value + '</p>'
+        messageDiv.innerHTML +=
+            '<p style="background-color:#31b731; color:white; width:fit-content; padding:5px 10px; border-radius:10px;" >' +
+            messageInput.value + '</p></b>'
+        socket.emit('pseudo', pseudoInput.value)
+        socket.emit('message', messageInput.value)
+        pseudoInput.value = '';
+        messageInput.value = '';
+    })
+
+    socket.on('list-users', currentUser => {
+        console.log(currentUser)
+        userList.innerHTML += '<p style="padding:5px 10px; background-color:#dadada; margin:20px 0;">' + currentUser + '</p>'
+    })
+
+    socket.on('pseudo', data => {
+        console.log('message received : ', data)
+        messageDiv.innerHTML += '<p style="color:#949494; font-size:14px;margin-bottom: -10px;">' + data +
+            '</p>'
+    })
+    socket.on('message', data => {
+        console.log('message received : ', data)
+        messageDiv.innerHTML +=
+            '<p style="background-color:#dadada; color:black; width:fit-content; padding:5px 10px; border-radius:10px;" >' +
+            data + '</p>'
+    })
+    
+</script>
